@@ -52,7 +52,7 @@ static void error (const char *msg, int line) {
 /*static Stack* inicializa_pilha()
 {
 	Stack* p = (Stack *) malloc(sizeof(Stack));
-	int i;
+	int i;16:	45 01 e5             	add    %r12d,%r13d
 	for(i = 0; i < 20; i++)
 	{
 		p->locals[i] = 0;
@@ -66,25 +66,26 @@ static void preenche_prologo(unsigned char * inicio)//, unsigned char* fim)
 {
 	printf("\n\tEntrei no PREENCHE PROLOGO\n");
 /*
-   0:	55                   	push   %rbp
+0:	55                   	push   %rbp
    1:	48 89 e5             	mov    %rsp,%rbp
    4:	48 83 ec 14          	sub    $0x14,%rsp
    8:	bb 00 00 00 00       	mov    $0x0,%ebx
 */
-	unsigned char in[9];
-	//unsigned char fi[2];
+	unsigned char in[13];
 	
 	in[0] = 0x55;
 	in[1] = 0x48;
 	in[2] = 0x89;
 	in[3] = 0xE5;
-	in[4] = 0xbb;
-	in[5] = 0x00;
-	in[6] = 0x00;
-	in[7] = 0x00;
-	in[8] = 0x00;
-	//fi[0] = 0xC9;
-	//fi[1] = 0xC3;
+	in[4] = 0x48;
+	in[5] = 0x83;
+	in[6] = 0xec;
+	in[7] = 0x14;
+	in[8] = 0xbb;
+	in[9] = 0x00;
+	in[10] = 0x00;
+	in[11] = 0x00;
+	in[12] = 0x00;
 	
 	strcpy((char *)inicio, (char *)in);
 	//strcpy((char *)fim, (char *)fi);
@@ -100,6 +101,7 @@ static void insere(Memory* block, unsigned char* codigo, int size)
 		{
 			block->code->source[block->index] = codigo[i];
 			block->index++;
+			//printf("Index: %d", block->index);
 		}
 
 	}
@@ -126,6 +128,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 			block->code->source[block->index + 1] = 0x5d;
 			block->code->source[block->index + 2] = 0xfc - (idx0*4);
 			block->index = block->index + 3;
+			break;
 				
 		}
 		case 'p':{
@@ -133,6 +136,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 			block->code->source[block->index] = 0x89;
 			block->code->source[block->index + 1] = 0xfb;
 			block->index = block->index + 2;
+			break;
 		}
 		case '$':{
 		/*
@@ -145,6 +149,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 			block->code->source[block->index + 3] = (char)idx0 >> 16;
 			block->code->source[block->index + 4] = (char)idx0 >> 24;
 			block->index = block->index + 5;
+			break;
 		}
 	}
 	switch(var1)
@@ -160,6 +165,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 			block->code->source[block->index + 1] = 0x45;
 			block->code->source[block->index + 2] = 0xfc - (idx0*4);
 			block->index = block->index + 3;
+			break;
 		}
 		case 'p':
 		{
@@ -167,6 +173,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 			block->code->source[block->index] = 0x89;
 			block->code->source[block->index + 1] = 0xf8;
 			block->index = block->index + 2;
+			break;
 		}
 		case '$':
 		{
@@ -180,6 +187,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 			block->code->source[block->index + 3] = (char)idx1 >> 16;
 			block->code->source[block->index + 4] = (char)idx1 >> 24;
 			block->index = block->index + 5;
+			break;
 		}
 	}
 	
@@ -197,21 +205,21 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 	block->code->source[block->index + 1] = 0xfb;
 	block->code->source[block->index + 2] = 0x00;
 	block->code->source[block->index + 3] = 0x74;
-	block->code->source[block->index + 4] = 0x00;
+	block->code->source[block->index + 4] = 0x05;
 	
-	block->code->source[block->index + 4] = 0xb8;
-	block->code->source[block->index + 5] = 0x00;
+	block->code->source[block->index + 5] = 0xb8;
 	block->code->source[block->index + 6] = 0x00;
 	block->code->source[block->index + 7] = 0x00;
 	block->code->source[block->index + 8] = 0x00;
+	block->code->source[block->index + 9] = 0x00;
 	
-	block->code->source[block->index + 9] = 0x48;
-	block->code->source[block->index + 10] = 0x89;
-	block->code->source[block->index + 11] = 0xec;
-	block->code->source[block->index + 12] = 0x5d;
-	block->code->source[block->index + 13] = 0xc3;
+	block->code->source[block->index + 10] = 0x48;
+	block->code->source[block->index + 11] = 0x89;
+	block->code->source[block->index + 12] = 0xec;
+	block->code->source[block->index + 13] = 0x5d;
+	block->code->source[block->index + 14] = 0xc3;
 	
-	block->index = block->index + 5;
+	block->index = block->index + 15;
 	
 	return;
 /*
@@ -230,7 +238,7 @@ void makeAtr();
 
 void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char var2, int idx2)
 {
-	printf("\n\tEntrei no MAKE OP VAR LOCAL\n");
+	printf("\nEntrei no MAKE OP VAR LOCAL\n");
 //reg = const + const
 //reg = const + p
 //reg = const + reg
@@ -238,44 +246,47 @@ void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char 
 			
 		switch(var1)
 		{
-			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var1\n");
+			//printf("\n\tEntrei no MAKE OP VAR LOCAL: Var1\n");
 			case 'p': {// movl %edi, %r12d
 			/*75:	41 89 fc             	mov    %edi,%r12d*/
-			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var1: Case p0\n");
+			printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var1: Case p0\n");
 			block->code->source[block->index] = 0x41;
 			block->code->source[block->index + 1] = 0x89;
 			block->code->source[block->index + 2] = 0xfc;
 			block->index = block->index + 3;
+			break;
 			}
 			case '$':{
 /*d:	41 bc 01 00 00 00    	mov    $0x1,%r12d
   13:	41 bc 02 00 00 00    	mov    $0x2,%r12d
   19:	41 bc 03 00 00 00    	mov    $0x3,%r12d
   */
-  			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var1: Case $\n");
-			block->code->source[block->index] = 0x41;
-			block->code->source[block->index + 1] = 0xbc;
+  				printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var1: Case $\n");
+				block->code->source[block->index] = 0x41;
+				block->code->source[block->index + 1] = 0xbc;
 			
-			block->code->source[block->index + 2] = (char) idx1;
-			block->code->source[block->index + 3] = (char) idx1 >> 8;
-			block->code->source[block->index + 4] = (char) idx1 >> 16;
-			block->code->source[block->index + 5] = (char) idx1 >> 24;
+				block->code->source[block->index + 2] = (char) idx1;
+				block->code->source[block->index + 3] = (char) idx1 >> 8;
+				block->code->source[block->index + 4] = (char) idx1 >> 16;
+				block->code->source[block->index + 5] = (char) idx1 >> 24;
 			
-			block->index = block->index + 6;
+				block->index = block->index + 6;
+				break;
 			}
 			case 'v':{
-			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var1: Case vX\n");
+			printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var1: Case v%d\n", idx1);
  /*
   1f:	44 8b 65 fc          	mov    -0x4(%rbp),%r12d
   23:	44 8b 65 f8          	mov    -0x8(%rbp),%r12d
   27:	44 8b 65 f4          	mov    -0xc(%rbp),%r12d
   2b:	44 8b 65 f0          	mov    -0x10(%rbp),%r12d
   2f:	44 8b 65 ec          	mov    -0x14(%rbp),%r12d*/
-  			block->code->source[block->index] = 0x44;
-			block->code->source[block->index + 1] = 0x8b;
-			block->code->source[block->index + 2] = 0x65;
-			block->code->source[block->index + 3] = 0xfc - (idx0*4);
-			block->index = block->index + 4;
+  				block->code->source[block->index] = 0x44;
+				block->code->source[block->index + 1] = 0x8b;
+				block->code->source[block->index + 2] = 0x65;
+				block->code->source[block->index + 3] = 0xfc - (idx0*4);
+				block->index = block->index + 4;
+				break;
 			}
 		}
 		
@@ -283,32 +294,34 @@ void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char 
 		
 		switch(var2)
 		{
-		printf("\n\tEntrei no MAKE OP VAR LOCAL: Var2:\n");
+		//printf("\n\tEntrei no MAKE OP VAR LOCAL: Var2:\n");
 			case '$': {
-			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var2: Case $\n");
+			printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var2: Case $%d\n", idx2);
 			/*  
   36:	41 bd 01 00 00 00    	mov    $0x1,%r13d
   3c:	41 bd 02 00 00 00    	mov    $0x2,%r13d
   42:	41 bd 03 00 00 00    	mov    $0x3,%r13d*/
 				block->code->source[block->index] = 0x41;
 				block->code->source[block->index + 1] = 0xbd;
-			
-				block->code->source[block->index + 2] = (char) idx1 ;
-				block->code->source[block->index + 3] = (char) idx1 >> 8;
-				block->code->source[block->index + 4] = (char) idx1 >> 16;
-				block->code->source[block->index + 5] = (char) idx1 >> 24;
+				block->code->source[block->index + 2] = (char*) idx2 ;
+				block->code->source[block->index + 3] = (char) idx2 >> 8;
+				block->code->source[block->index + 4] = (char) idx2 >> 16;
+				block->code->source[block->index + 5] = (char) idx2 >> 24;
+				block->index = block->index + 6;
+				break;
 				
 			}
 			case 'p':{
-			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var2: Case p0\n");
+			printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var2: Case p0\n");
 				/*33:	41 89 fd             	mov    %edi,%r13d*/
 				block->code->source[block->index] = 0x41;
 				block->code->source[block->index + 1] = 0x89;
 				block->code->source[block->index + 2] = 0xfd;
 				block->index = block->index + 3;
+				break;
 			}
 			case 'v':{
-			printf("\n\tEntrei no MAKE OP VAR LOCAL: Var2: Case vX\n");
+			printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var2: Case vX\n");
 	/*
   48:	44 8b 6d fc          	mov    -0x4(%rbp),%r13d
   4c:	44 8b 6d f8          	mov    -0x8(%rbp),%r13d
@@ -319,35 +332,47 @@ void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char 
 				block->code->source[block->index + 2] = 0x6d;
 				block->code->source[block->index + 3] = 0xfc - (idx2*4);
 				block->index = block->index + 4;
+				break;
 			}
 		}
 		
 		switch(op)
 		{
-		printf("\n\tEntrei no MAKE OP VAR LOCAL: OPERACAO\n");
+		//printf("\n\tEntrei no MAKE OP VAR LOCAL: OPERACAO\n");
 		/*
   54:	45 01 e5             	add    %r12d,%r13d
   57:	45 29 e5             	sub    %r12d,%r13d
   5a:	45 0f af ec          	imul   %r12d,%r13d
+  
+  9c:	45 01 ec             	add    %r13d,%r12d
+  9f:	45 29 ec             	sub    %r13d,%r12d
+  a2:	45 0f af e5          	imul   %r13d,%r12d
 		*/
 			case '+': {
 				block->code->source[block->index] = 0x45;
 				block->code->source[block->index + 1] = 0x01;
-				block->code->source[block->index + 2] = 0xe5;
+				block->code->source[block->index + 2] = 0xec;
 				block->index = block->index + 3;
+				printf("\n\t\t OPERACAO de ++++\n");
+				
+				break;
 			}
 			case '-': {
 				block->code->source[block->index] = 0x45;
 				block->code->source[block->index + 1] = 0x29;
-				block->code->source[block->index + 2] = 0xe5;
+				block->code->source[block->index + 2] = 0xec;
 				block->index = block->index + 3;
+				printf("\n\t\t OPERACAO de ----\n");
+				break;
 			}
 			case '*':{
 				block->code->source[block->index] = 0x45;
 				block->code->source[block->index + 1] = 0x0f;
 				block->code->source[block->index + 2] = 0xaf;
-				block->code->source[block->index + 2] = 0xec;
+				block->code->source[block->index + 2] = 0xe5;
 				block->index = block->index + 4;
+				printf("\n\t\t OPERACAO de ****\n");
+				break;
 			}
 		}
 		
@@ -357,11 +382,13 @@ void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char 
   18:	44 89 6d f4          	mov    %r13d,-0xc(%rbp)
   1c:	44 89 6d f0          	mov    %r13d,-0x10(%rbp)
   20:	44 89 6d ec          	mov    %r13d,-0x14(%rbp)
+   bd:	44 89 65 fc          	mov    %r12d,-0x4(%rbp)
 		*/
-		printf("\n\tEntrei no MAKE OP VAR LOCAL: 	ATRIBUI A OPERAÇÃO PARA A VARIAVEL LOCAL\n");
+		
+		printf("\nEntrei no MAKE OP VAR LOCAL: 	ATRIBUI A OPERAÇÃO PARA A VARIAVEL LOCAL\n");
 		block->code->source[block->index] = 0x44;
 		block->code->source[block->index + 1] = 0x89;
-		block->code->source[block->index + 2] = 0x6d;
+		block->code->source[block->index + 2] = 0x65;
 		block->code->source[block->index + 3] = 0xfc - (idx0*4);
 		block->index = block->index + 4;
 		
@@ -418,6 +445,7 @@ void read_SBF(FILE *myfp, Memory *block)
             error("comando invalido", line);
           printf("%c%d = %c%d %c %c%d\n",
                 var0, idx0, var1, idx1, op, var2, idx2);
+                makeOpVarLocal(block, idx0, var1, idx1, op, var2, idx2);
         }
         break;
       }
@@ -471,10 +499,10 @@ static void finaliza(Memory* block)
 
 void geracod (FILE *f, void **code, funcp *entry)
 {
-	unsigned char prologo_inicio[4];
+	unsigned char prologo_inicio[13];
 	Memory *block = start();
 	preenche_prologo(prologo_inicio);
-	insere(block, prologo_inicio, 9);
+	insere(block, prologo_inicio, 13);
 	read_SBF(f, block);
 	debug(block);
 	finaliza(block);
@@ -485,3 +513,4 @@ void geracod (FILE *f, void **code, funcp *entry)
 }
 
 void liberacod (void *p);
+
