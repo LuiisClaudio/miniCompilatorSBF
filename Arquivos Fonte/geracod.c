@@ -163,7 +163,7 @@ void make_ret(Memory* block, char var0, int idx0, char var1, int idx1)
 		*/
 			block->code->source[block->index] = 0x8b;
 			block->code->source[block->index + 1] = 0x45;
-			block->code->source[block->index + 2] = 0xfc - (idx0*4);
+			block->code->source[block->index + 2] = 0xfc - (idx1*4);
 			block->index = block->index + 3;
 			break;
 		}
@@ -284,7 +284,7 @@ void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char 
   				block->code->source[block->index] = 0x44;
 				block->code->source[block->index + 1] = 0x8b;
 				block->code->source[block->index + 2] = 0x65;
-				block->code->source[block->index + 3] = 0xfc - (idx0*4);
+				block->code->source[block->index + 3] = 0xfc - (idx1*4);
 				block->index = block->index + 4;
 				break;
 			}
@@ -369,7 +369,7 @@ void makeOpVarLocal(Memory *block, int idx0, char var1, int idx1, char op, char 
 				block->code->source[block->index] = 0x45;
 				block->code->source[block->index + 1] = 0x0f;
 				block->code->source[block->index + 2] = 0xaf;
-				block->code->source[block->index + 2] = 0xe5;
+				block->code->source[block->index + 3] = 0xe5;
 				block->index = block->index + 4;
 				printf("\n\t\t OPERACAO de ****\n");
 				break;
