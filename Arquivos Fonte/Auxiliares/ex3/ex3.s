@@ -14,11 +14,9 @@
 .globl ex3
 
 ex3:
-
-f0:
 push %rbp
 movq %rsp, %rbp
-sub $16, %rsp
+sub $32, %rsp
 movl $0, %ebx
 
 #ret? p0 $1
@@ -33,21 +31,19 @@ movl %edi, -4(%rbp) /* v0 = p0, guarda v0 na pilha */
 #v1 = v0 - $1
 movl -4(%rbp), %r12d /* v1 = v0 */
 subl $1, %r12d /* v1 = v0 - 1 */
-movl %r12d, -8(%rbp) /* guarda v1 na pilha em cima de v0 */
+//movl %r12d, -8(%rbp) /* guarda v1 na pilha em cima de v0 */
 
 #v1 = call 0 v1
 movl %r12d, %edi
-call f0
-movl %eax, -8(%rbp) /* guarda v1 na pilha em cima de v0 */
+call ex3
 
 #v0 = v0 * v1
 movl -4(%rbp), %r12d
-movl -8(%rbp), %r13d
+movl %eax, %r13d
 imull %r13d, %r12d /* v0 = v0 * v1 */
-movl %r13d, -4(%rbp)
 
 #ret? $0 v0
-movl -4(%rbp), %eax
+movl %r12d, %eax
 
 FIM:
 movq %rbp, %rsp

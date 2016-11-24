@@ -1,10 +1,10 @@
 #include<stdio.h>
 
-int ex2(int x);
+int ex3(int x);
 
 int main(void)
 {
-	printf("Valor = %d\n", ex2(10));
+	printf("Valor = %d\n", ex3(10));
 	
 	return 0;
 }
