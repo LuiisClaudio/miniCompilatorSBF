@@ -91,7 +91,7 @@ static void preenche_prologo(unsigned char * inicio)
     /*
      0:	55                   	push   %rbp
      1:	48 89 e5             	mov    %rsp,%rbp
-     4:	48 83 ec 32          	sub    $0x32,%rsp
+     4:	48 83 ec 20          	sub    $0x20,%rsp
      8:	bb 00 00 00 00       	mov    $0x0,%ebx
      */
     unsigned char in[13];
@@ -105,7 +105,7 @@ static void preenche_prologo(unsigned char * inicio)
     in[4] = 0x48;
     in[5] = 0x83;
     in[6] = 0xec;
-    in[7] = 0x32;
+    in[7] = 0x20;
     in[8] = 0xbb;
     in[9] = 0x00;
     in[10] = 0x00;

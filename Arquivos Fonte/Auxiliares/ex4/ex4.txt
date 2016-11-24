@@ -1,7 +1,8 @@
 function
 v0 = p0 * p0
-ret? $0 p0
+ret? $0 v0
 end
+
 function
 ret? p0 $0
 v0 = p0 - $1
