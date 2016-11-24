@@ -11,21 +11,29 @@ typedef struct _mem Memory;
 
 struct _mem
 {
-  int index; // proximo index livre de source
-  unsigned char *source;
+	int index; // proximo index livre de source
+	unsigned char *source;
 };
 
 static Memory* start()
 {
 	int i;
 	Memory* strct;
+
 	strct = (Memory *) malloc(sizeof(Memory));
+	if (strct == NULL)
+	{
+		printf("Erro ao alocar memoria para o codigo");
+		exit(1);
+	}
+
 	strct->index = 0;
 	strct->source = (unsigned char *) malloc(sizeof(unsigned char)*TAMANHO_BYTES);
 	for(i = 0; i < TAMANHO_BYTES; i++ )
 	{
 		strct->source[i] = 0x90; //NOP
 	}
+
 	return strct;
 }
 /*typedef struct _stack Stack;
@@ -56,15 +64,16 @@ static void error (const char *msg, int line) {
 
 static void preenche_prologo(unsigned char * inicio)
 {
-	printf("\n\tEntrei no PREENCHE PROLOGO\n");
 /*
-0:	55                   	push   %rbp
-   1:	48 89 e5             	mov    %rsp,%rbp
-   4:	48 83 ec 14          	sub    $0x14,%rsp
-   8:	bb 00 00 00 00       	mov    $0x0,%ebx
+	0:	55                   	push   %rbp
+	1:	48 89 e5             	mov    %rsp,%rbp
+	4:	48 83 ec 32          	sub    $0x32,%rsp
+	8:	bb 00 00 00 00       	mov    $0x0,%ebx
 */
 	unsigned char in[13];
-	
+
+	printf("\n\tEntrei no PREENCHE PROLOGO\n");
+
 	in[0] = 0x55;
 	in[1] = 0x48;
 	in[2] = 0x89;
@@ -87,6 +96,7 @@ static void preenche_prologo(unsigned char * inicio)
 static void insere(Memory* block, unsigned char* codigo, int size)
 {
 	int i;
+
 	if(block->index < TAMANHO_BYTES)
 	{
 		for(i = 0; i < size; i++)
