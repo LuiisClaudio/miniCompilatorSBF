@@ -139,7 +139,7 @@ static void insere(Memory* block, unsigned char* codigo, int size)
     
 }
 
-void make_ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int varpc1)
+void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int varpc1)
 {
     printf("\n\tEntrei no MAKE RET\n");
     
@@ -262,7 +262,7 @@ void make_ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int v
 }
 
 
-void makeOpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, char op, char tipoVarpc2, int varpc2)
+void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, char op, char tipoVarpc2, int varpc2)
 {
     printf("\nEntrei no MAKE OP VAR LOCAL\n");
     //reg = const + const
@@ -438,6 +438,99 @@ void makeOpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, char
     
 }
 
+void make_Call(Memory* block, int indiceFunc, char tipoVarpc0, int varpc0)
+{
+    printf("\n\tEntrei no MAKE CALL\n");
+    
+    //movl parametro, %edi
+    switch(tipoVarpc0)
+    {
+        case 'v':
+        {
+            /*
+             a9:	8b 7d fc             	mov    -0x4(%rbp),%edi
+             ac:	8b 7d f8             	mov    -0x8(%rbp),%edi
+             af:	8b 7d f4             	mov    -0xc(%rbp),%edi
+             */
+            block->source[block->index] = 0x8b;
+            block->source[block->index + 1] = 0x7d;
+            block->source[block->index + 2] = 0xfc - (varpc0*4);
+            block->index = block->index + 3;
+            break;
+            
+        }
+        case 'p':
+        {
+            /*
+             a9:	89 fb                	mov    %edi,%ebx
+             */
+            block->source[block->index] = 0x89;
+            block->source[block->index + 1] = 0xfb;
+            block->index = block->index + 2;
+            break;
+        }
+        case '$':
+        {
+            /*
+             ab:	bb cc 06 06 00       	mov    $0x606cc,%ebx
+             b0:	bb 15 25 00 00       	mov    $0x2515,%ebx
+             */
+            block->source[block->index] = 0xbb;
+            block->source[block->index + 1] = (char)varpc0;
+            block->source[block->index + 2] = (char)varpc0 >> 8;
+            block->source[block->index + 3] = (char)varpc0 >> 16;
+            block->source[block->index + 4] = (char)varpc0 >> 24;
+            block->index = block->index + 5;
+            break;
+        }
+    }
+    
+    
+    
+    //movl parametro, %edi
+    switch(tipoVarpc0)
+    {
+        case 'v':
+        {
+            /*
+             a9:	8b 5d fc             	mov    -0x4(%rbp),%ebx
+             ac:	8b 5d f8             	mov    -0x8(%rbp),%ebx
+             af:	8b 5d f4             	mov    -0xc(%rbp),%ebx
+             */
+            block->source[block->index] = 0x8b;
+            block->source[block->index + 1] = 0x5d;
+            block->source[block->index + 2] = 0xfc - (varpc0*4);
+            block->index = block->index + 3;
+            break;
+            
+        }
+        case 'p':
+        {
+            /*
+             a9:	89 fb                	mov    %edi,%ebx
+             */
+            block->source[block->index] = 0x89;
+            block->source[block->index + 1] = 0xfb;
+            block->index = block->index + 2;
+            break;
+        }
+        case '$':
+        {
+            /*
+             ab:	bb cc 06 06 00       	mov    $0x606cc,%ebx
+             b0:	bb 15 25 00 00       	mov    $0x2515,%ebx
+             */
+            block->source[block->index] = 0xbb;
+            block->source[block->index + 1] = (char)varpc0;
+            block->source[block->index + 2] = (char)varpc0 >> 8;
+            block->source[block->index + 3] = (char)varpc0 >> 16;
+            block->source[block->index + 4] = (char)varpc0 >> 24;
+            block->index = block->index + 5;
+            break;
+        }
+    }
+}
+
 void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
@@ -471,7 +564,7 @@ void read_SBF(FILE *myfp, Memory *block)
                 
                 printf("ret? %c%d %c%d\n", var0, idx0, var1, idx1);
                 
-                make_ret(block, var0, idx0, var1, idx1);
+                make_Ret(block, var0, idx0, var1, idx1);
                 break;
             }
             case 'v':   /* atribuicao */
@@ -485,7 +578,10 @@ void read_SBF(FILE *myfp, Memory *block)
                 {
                     if (fscanf(myfp, "all %d %c%d\n", &f, &var1, &idx1) != 3)
                         error("comando invalido",line);
+                    
                     printf("%c%d = call %d %c%d\n",var0, idx0, f, var1, idx1);
+                    
+                    
                 }
                 else    /* operação aritmética */
                 {
@@ -497,7 +593,7 @@ void read_SBF(FILE *myfp, Memory *block)
                     printf("%c%d = %c%d %c %c%d\n",
                            var0, idx0, var1, idx1, op, var2, idx2);
                     
-                    makeOpVarLocal(block, idx0, var1, idx1, op, var2, idx2);
+                    make_OpVarLocal(block, idx0, var1, idx1, op, var2, idx2);
                 }
                 break;
             }
