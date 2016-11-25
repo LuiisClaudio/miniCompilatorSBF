@@ -5,30 +5,14 @@
 #include "geracod.h"
 
 #define TAMANHO_BYTES 1600
-//block->code->source[]
+/*
+ Cada funcao tem no minimo 3 linhas, 
+ o arquivo tem no maximo 50 linhas,
+ logo um arquivo tem no maximo 16 funcoes.
+ */
+#define NUM_MAX_FUNCOES 16
 
-void geracod (FILE *f, void **code, funcp *entry)
-{
-    unsigned char prologo_inicio[13];
-    
-    Memory *block = start();
-    preenche_prologo(prologo_inicio);
-    insere(block, prologo_inicio, 13);
-    read_SBF(f, block);
-    debug(block);
-    
-    *code = block->source;
-    entry = (funcp)code;
-    
-    return;
-}
-
-void liberacod(void* p)
-{
-    unsigned char* freeme = (unsigned char*) p;
-    free(freeme);
-}
-
+// Estrutura encapsulada no modulo
 typedef struct _mem Memory;
 
 struct _mem
@@ -37,6 +21,7 @@ struct _mem
     unsigned char *source;
 };
 
+// Funcoes encapsuladas no modulo
 static Memory* start()
 {
     int i;
@@ -139,7 +124,7 @@ static void insere(Memory* block, unsigned char* codigo, int size)
     
 }
 
-void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int varpc1)
+static void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int varpc1)
 {
     printf("\n\tEntrei no MAKE RET\n");
     
@@ -262,7 +247,7 @@ void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int v
 }
 
 
-void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, char op, char tipoVarpc2, int varpc2)
+static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, char op, char tipoVarpc2, int varpc2)
 {
     printf("\nEntrei no MAKE OP VAR LOCAL\n");
     //reg = const + const
@@ -438,8 +423,10 @@ void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, cha
     
 }
 
-void make_Call(Memory* block, int indiceFunc, char tipoVarpc0, int varpc0)
+static void make_Call(Memory* block, int var0, long enderecoFuncaoChamada, char tipoVarpc0, int varpc0)
 {
+    long difEntreEndFuncoes, enderecoFimCall;
+
     printf("\n\tEntrei no MAKE CALL\n");
     
     //movl parametro, %edi
@@ -462,20 +449,20 @@ void make_Call(Memory* block, int indiceFunc, char tipoVarpc0, int varpc0)
         case 'p':
         {
             /*
-             a9:	89 fb                	mov    %edi,%ebx
+             a9:	89 ff                	mov    %edi,%edi
              */
             block->source[block->index] = 0x89;
-            block->source[block->index + 1] = 0xfb;
+            block->source[block->index + 1] = 0xff;
             block->index = block->index + 2;
             break;
         }
         case '$':
         {
             /*
-             ab:	bb cc 06 06 00       	mov    $0x606cc,%ebx
-             b0:	bb 15 25 00 00       	mov    $0x2515,%ebx
+             ab:	bf cc 06 06 00       	mov    $0x606cc,%ebx
+             b0:	bf 15 25 00 00       	mov    $0x2515,%ebx
              */
-            block->source[block->index] = 0xbb;
+            block->source[block->index] = 0xbf;
             block->source[block->index + 1] = (char)varpc0;
             block->source[block->index + 2] = (char)varpc0 >> 8;
             block->source[block->index + 3] = (char)varpc0 >> 16;
@@ -484,58 +471,39 @@ void make_Call(Memory* block, int indiceFunc, char tipoVarpc0, int varpc0)
             break;
         }
     }
-    
-    
-    
-    //movl parametro, %edi
-    switch(tipoVarpc0)
-    {
-        case 'v':
-        {
-            /*
-             a9:	8b 5d fc             	mov    -0x4(%rbp),%ebx
-             ac:	8b 5d f8             	mov    -0x8(%rbp),%ebx
-             af:	8b 5d f4             	mov    -0xc(%rbp),%ebx
-             */
-            block->source[block->index] = 0x8b;
-            block->source[block->index + 1] = 0x5d;
-            block->source[block->index + 2] = 0xfc - (varpc0*4);
-            block->index = block->index + 3;
-            break;
-            
-        }
-        case 'p':
-        {
-            /*
-             a9:	89 fb                	mov    %edi,%ebx
-             */
-            block->source[block->index] = 0x89;
-            block->source[block->index + 1] = 0xfb;
-            block->index = block->index + 2;
-            break;
-        }
-        case '$':
-        {
-            /*
-             ab:	bb cc 06 06 00       	mov    $0x606cc,%ebx
-             b0:	bb 15 25 00 00       	mov    $0x2515,%ebx
-             */
-            block->source[block->index] = 0xbb;
-            block->source[block->index + 1] = (char)varpc0;
-            block->source[block->index + 2] = (char)varpc0 >> 8;
-            block->source[block->index + 3] = (char)varpc0 >> 16;
-            block->source[block->index + 4] = (char)varpc0 >> 24;
-            block->index = block->index + 5;
-            break;
-        }
-    }
+
+    //call fn
+    /*
+     62:	e8 00 00 00 00       	callq  67 <f1+0x35>
+     6d:	e8 00 00 00 00       	callq  72 <f1+0x40>
+    */
+    enderecoFimCall = (long)&(block->source[block->index + 4]);
+    difEntreEndFuncoes = enderecoFuncaoChamada - enderecoFimCall;
+    block->source[block->index] = 0xe8;
+    block->source[block->index + 1] = (char)difEntreEndFuncoes;
+    block->source[block->index + 2] = (char)difEntreEndFuncoes >> 8;
+    block->source[block->index + 3] = (char)difEntreEndFuncoes >> 16;
+    block->source[block->index + 4] = (char)difEntreEndFuncoes >> 24;    
+    block->index = block->index + 5;
+
+    //movl %eax, var
+    /*
+     86:	89 45 fc             	mov    %eax,-0x4(%rbp)
+     89:	89 45 f8             	mov    %eax,-0x8(%rbp)
+     8c:	89 45 f4             	mov    %eax,-0xc(%rbp)
+    */
+    block->source[block->index] = 0x89;
+    block->source[block->index + 1] = 0x45;
+    block->source[block->index + 2] = 0xfc - (var0*4);
+    block->index = block->index + 3;
 }
 
-void read_SBF(FILE *myfp, Memory *block)
+static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
     int c, f, idx0, idx1, idx2;
-    int line = 1;
+    long vetEndIniFuncoes[NUM_MAX_FUNCOES];
+    int line = 1, qtdFunc = 0;
 
     while ((c = fgetc(myfp)) != EOF)
     {
@@ -547,6 +515,9 @@ void read_SBF(FILE *myfp, Memory *block)
                     error("comando invalido", line);
                 
                 printf("function\n");
+                
+                vetEndIniFuncoes[qtdFunc] = (long)(line-1);
+                qtdFunc++;
                 break;
             }
             case 'e':   /* end */
@@ -581,7 +552,7 @@ void read_SBF(FILE *myfp, Memory *block)
                     
                     printf("%c%d = call %d %c%d\n",var0, idx0, f, var1, idx1);
                     
-                    
+                    make_Call(block, idx0, vetEndIniFuncoes[f], var1, idx1);
                 }
                 else    /* operação aritmética */
                 {
@@ -606,7 +577,7 @@ void read_SBF(FILE *myfp, Memory *block)
     }
 }
 
-void debug(Memory* block)
+static void debug(Memory* block)
 {
     int i;
     
@@ -614,4 +585,28 @@ void debug(Memory* block)
     {
         printf("%d : %x\n", i, block->source[i]);
     }
+}
+
+// Fim das funcoes encapsuladas no modulo
+
+void geracod (FILE *f, void **code, funcp *entry)
+{
+    unsigned char prologo_inicio[13];
+    
+    Memory *block = start();
+    preenche_prologo(prologo_inicio);
+    insere(block, prologo_inicio, 13);
+    read_SBF(f, block);
+    debug(block);
+    
+    *code = block->source;
+    entry = (funcp)code;
+    
+    return;
+}
+
+void liberacod(void* p)
+{
+    unsigned char* freeme = (unsigned char*) p;
+    free(freeme);
 }

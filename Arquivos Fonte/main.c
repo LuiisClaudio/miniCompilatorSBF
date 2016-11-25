@@ -11,7 +11,7 @@ int main (void) {
   funcp *entry;
   
 
-  if ((myfp = fopen("//home//luis//tra2//ex2.txt", "r")) == NULL)
+  if ((myfp = fopen("/home/lucasferraco/inf1018/miniCompilatorSBF/Arquivos Fonte/Auxiliares/ex3/ex3.txt", "r")) == NULL)
   {
     perror ("nao conseguiu abrir arquivo!");
     exit(1);

@@ -60,3 +60,19 @@ FIM:
 movq %rbp, %rsp
 pop %rbp
 ret
+
+
+// Testes de possiveis chamadas
+mov    -0x4(%rbp),%edi
+mov    -0x8(%rbp),%edi
+mov    -0xc(%rbp),%edi
+
+mov    %edi,%edi
+
+mov    $0x606cc,%edi
+mov    $0x2515,%edi
+
+movl %eax, -0x4(%rbp)
+movl %eax, -0x8(%rbp)
+movl %eax, -0xc(%rbp)
+
