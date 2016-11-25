@@ -13,26 +13,25 @@ ex2:
 
 push %rbp
 movq %rsp, %rbp
-sub $20, %rsp
+sub $32, %rsp
 movl $0, %ebx
 
 movl %edi, %r12d
 movl $1, %r13d
-add %r12d, %r13d
-movl %r13d, -4(%rbp)
+add %r13d, %r12d
+movl %r12d, -4(%rbp)
 
 movl $0, %ebx
 movl -4(%rbp), %eax
 
 cmpl $0, %ebx
-je FIM
-movl $0, %eax
+jne FIM
 
-FIM:
 movq %rbp, %rsp
 pop %rbp
 ret
 
+FIM:
 /*
 movl $1, -4(%rbp)
 movl $2, -8(%rbp)
@@ -84,7 +83,6 @@ movl -12(%rbp), %r13d
 
 addl %r12d, %r13d
 subl %r12d, %r13d
-subl $r13d, %r12d
 imull %r12d, %r13d
 
 
