@@ -222,28 +222,25 @@ static void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1
     block->source[block->index] = 0x83;
     block->source[block->index + 1] = 0xfb;
     block->source[block->index + 2] = 0x00;
-    block->source[block->index + 3] = 0x74;
+    block->source[block->index + 3] = 0x75;
     block->source[block->index + 4] = 0x05; // porque é 0x05 e não 0x00 ?
     
-    block->source[block->index + 5] = 0xb8;
-    block->source[block->index + 6] = 0x00;
-    block->source[block->index + 7] = 0x00;
-    block->source[block->index + 8] = 0x00;
-    block->source[block->index + 9] = 0x00;
-    
     /*
-     00000000000000e4 <FIM>:
-     e4:	48 89 ec             	mov    %rbp,%rsp
-     e7:	5d                   	pop    %rbp
-     e8:	c3                   	retq
+  1d:	bb 00 00 00 00       	mov    $0x0,%ebx
+  22:	8b 45 fc             	mov    -0x4(%rbp),%eax
+  25:	83 fb 00             	cmp    $0x0,%ebx
+  28:	75 05                	jne    2f <FIM>
+  2a:	48 89 ec             	mov    %rbp,%rsp
+  2d:	5d                   	pop    %rbp
+  2e:	c3                   	retq                    	retq
      */
-    block->source[block->index + 10] = 0x48;
-    block->source[block->index + 11] = 0x89;
-    block->source[block->index + 12] = 0xec;
-    block->source[block->index + 13] = 0x5d;
-    block->source[block->index + 14] = 0xc3;
+    block->source[block->index + 5] = 0x48;
+    block->source[block->index + 6] = 0x89;
+    block->source[block->index + 7] = 0xec;
+    block->source[block->index + 8] = 0x5d;
+    block->source[block->index + 9] = 0xc3;
     
-    block->index = block->index + 15;
+    block->index = block->index + 10;
 }
 
 
@@ -610,3 +607,4 @@ void liberacod(void* p)
     unsigned char* freeme = (unsigned char*) p;
     free(freeme);
 }
+
