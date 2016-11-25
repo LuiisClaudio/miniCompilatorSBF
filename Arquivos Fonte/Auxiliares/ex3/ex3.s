@@ -23,8 +23,12 @@ movl $0, %ebx
 movl %edi, %ebx
 movl $1, %eax
 cmpl $0, %ebx /* p0 == 0 ? */
-je   FIM
-movl $0, %eax
+jne   RET0
+movq %rbp, %rsp
+pop %rbp
+ret
+RET0:
+#// removi essa linha movl $0, %eax
 
 #v0 = p0 + $0
 movl %edi, %r12d
@@ -53,16 +57,13 @@ movl   %r12d, -4(%rbp)
 movl $0, %ebx
 movl -4(%rbp), %eax
 cmpl $0, %ebx /* p0 == 0 ? */
-je   FIM
-movl $0, %eax
-
-FIM:
+jne  RET1
 movq %rbp, %rsp
 pop %rbp
 ret
+RET1:
 
-
-// Testes de possiveis chamadas
+#// Testes de possiveis chamadas
 mov    -0x4(%rbp),%edi
 mov    -0x8(%rbp),%edi
 mov    -0xc(%rbp),%edi
@@ -75,4 +76,5 @@ mov    $0x2515,%edi
 movl %eax, -0x4(%rbp)
 movl %eax, -0x8(%rbp)
 movl %eax, -0xc(%rbp)
+
 
