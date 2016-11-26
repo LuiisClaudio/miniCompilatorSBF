@@ -18,10 +18,11 @@ int main (void) {
   }
   //void geracod (FILE *f, void **code, funcp *entry);
   geracod(myfp, code, entry);
-  entry = (funcp)code;
-
-  i = (*entry)(0);
+  printf("\nsaiu da geracod\n");
+  //entry = (funcp)code;
+  //printf("\natribuiu code a entry\n");
+  i = (*entry)(4);
   printf("\ni = %d\n", i);
-  
+  printf("\nacabou\n");
   return 0;
 }

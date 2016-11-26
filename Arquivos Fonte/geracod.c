@@ -4,6 +4,8 @@
 #include <math.h>
 #include "geracod.h"
 
+#define VERDADEIRO 1
+#define FALSO 0
 #define TAMANHO_BYTES 1600
 /*
  Cada funcao tem no minimo 3 linhas, 
@@ -11,6 +13,9 @@
  logo um arquivo tem no maximo 16 funcoes.
  */
 #define NUM_MAX_FUNCOES 16
+
+static long vetEndIniFuncoes[NUM_MAX_FUNCOES];
+static int  qtdFunc = -1;
 
 // Estrutura encapsulada no modulo
 typedef struct _mem Memory;
@@ -475,12 +480,15 @@ static void make_Call(Memory* block, int var0, long enderecoFuncaoChamada, char 
      6d:	e8 00 00 00 00       	callq  72 <f1+0x40>
     */
     enderecoFimCall = (long)&(block->source[block->index + 4]);
-    difEntreEndFuncoes = enderecoFuncaoChamada - enderecoFimCall;
+    difEntreEndFuncoes = enderecoFimCall - enderecoFuncaoChamada;
+    printf("\nenderecoFuncaoChamada = 0x%lx", enderecoFuncaoChamada);
+    printf("\nenderecoFimCall = 0x%lx", enderecoFimCall);
+    printf("\ndifEntreEndFuncoes = 0x%lx\n\n", difEntreEndFuncoes);
     block->source[block->index] = 0xe8;
-    block->source[block->index + 1] = (char)difEntreEndFuncoes;
-    block->source[block->index + 2] = (char)difEntreEndFuncoes >> 8;
-    block->source[block->index + 3] = (char)difEntreEndFuncoes >> 16;
-    block->source[block->index + 4] = (char)difEntreEndFuncoes >> 24;    
+    block->source[block->index + 1] = (difEntreEndFuncoes & 0xff);
+    block->source[block->index + 2] = (difEntreEndFuncoes & 0xff00) >> 8;
+    block->source[block->index + 3] = (difEntreEndFuncoes & 0xff0000) >> 16;
+    block->source[block->index + 4] = (difEntreEndFuncoes & 0xff000000) >> 24;    
     block->index = block->index + 5;
 
     //movl %eax, var
@@ -498,9 +506,11 @@ static void make_Call(Memory* block, int var0, long enderecoFuncaoChamada, char 
 static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
-    int c, f, idx0, idx1, idx2;
-    long vetEndIniFuncoes[NUM_MAX_FUNCOES];
-    int line = 1, qtdFunc = 0;
+    int i, c, f, idx0, idx1, idx2;
+    int line = 1, ehPrimLinhaFunc = FALSO;
+
+    for(i=0; i<NUM_MAX_FUNCOES; i++)
+        vetEndIniFuncoes[i] = 0;
 
     while ((c = fgetc(myfp)) != EOF)
     {
@@ -513,7 +523,7 @@ static void read_SBF(FILE *myfp, Memory *block)
                 
                 printf("function\n");
                 
-                vetEndIniFuncoes[qtdFunc] = (long)(line-1);
+                ehPrimLinhaFunc = VERDADEIRO;
                 qtdFunc++;
                 break;
             }
@@ -532,6 +542,13 @@ static void read_SBF(FILE *myfp, Memory *block)
                 
                 printf("ret? %c%d %c%d\n", var0, idx0, var1, idx1);
                 
+                if(ehPrimLinhaFunc)
+                {
+                    vetEndIniFuncoes[qtdFunc] = (long)&block->source[block->index];
+                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+                    ehPrimLinhaFunc = FALSO;
+                }
+                                
                 make_Ret(block, var0, idx0, var1, idx1);
                 break;
             }
@@ -550,7 +567,7 @@ static void read_SBF(FILE *myfp, Memory *block)
                     printf("%c%d = call %d %c%d\n",var0, idx0, f, var1, idx1);
                     
                     make_Call(block, idx0, vetEndIniFuncoes[f], var1, idx1);
-                }
+                } 
                 else    /* operação aritmética */
                 {
                     var1 = c0;
@@ -563,6 +580,14 @@ static void read_SBF(FILE *myfp, Memory *block)
                     
                     make_OpVarLocal(block, idx0, var1, idx1, op, var2, idx2);
                 }
+
+                if(ehPrimLinhaFunc)
+                {
+                    vetEndIniFuncoes[qtdFunc] = (long)&(block->source[block->index]);
+                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+                    ehPrimLinhaFunc = FALSO;
+                }
+                
                 break;
             }
             default:
@@ -586,19 +611,25 @@ static void debug(Memory* block)
 
 // Fim das funcoes encapsuladas no modulo
 
+// Funcoes externadas pelo modulo
+
 void geracod (FILE *f, void **code, funcp *entry)
 {
     unsigned char prologo_inicio[13];
-    
+    int i; //apagar
     Memory *block = start();
     preenche_prologo(prologo_inicio);
     insere(block, prologo_inicio, 13);
     read_SBF(f, block);
-    debug(block);
-    
+    printf("\nendereco primeira linha: 0x%lx\n", &block->source[0]);//apagar
+    printf("\nendereco linha pos call: 0x%lx\n", &block->source[70]);//apagar
+    printf("\nendereco no array[%d]: 0x%lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);//apagar
+    //debug(block);
+    printf("\nfim debug\n");//apagar
     *code = block->source;
-    entry = (funcp)code;
-    
+    printf("\ncode = block->source\n");//apagar
+    entry = (funcp)vetEndIniFuncoes[qtdFunc];
+    printf("\nentry = endereco ultima funcao\n");//apagar
     return;
 }
 
@@ -608,3 +639,4 @@ void liberacod(void* p)
     free(freeme);
 }
 
+// Fim das funcoes externadas pelo modulo
