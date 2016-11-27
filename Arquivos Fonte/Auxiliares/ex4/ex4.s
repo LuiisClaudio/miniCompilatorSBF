@@ -25,14 +25,11 @@ movl   %r12d, -4(%rbp)
 movl $0, %ebx
 movl -4(%rbp), %eax
 cmpl $0, %ebx /* p0 == 0 ? */
-je   FIM0
-movl $0, %eax
-
-FIM0:
+jne   RET0
 movq %rbp, %rsp
 pop %rbp
 ret
-
+RET0:
 //Calcula a soma dos quadrados dos n primeiros naturais
 f1:
 /*
@@ -54,8 +51,11 @@ movl $0, %ebx
 movl %edi, %ebx
 movl $0, %eax
 cmpl $0, %ebx /* p0 == 0 ? */
-je   FIM1
-movl $0, %eax
+jne   RET1
+movq %rbp, %rsp
+pop %rbp
+ret
+RET1:
 
 #v0 = p0 - $1
 movl   %edi, %r12d
@@ -83,10 +83,14 @@ movl   %r12d, -4(%rbp)
 movl $0, %ebx
 movl -4(%rbp), %eax
 cmpl $0, %ebx /* p0 == 0 ? */
-je   FIM1
-movl $0, %eax
-
-FIM1:
+jne   RET2
 movq %rbp, %rsp
 pop %rbp
 ret
+RET2:
+
+FIM:
+movq %rbp, %rsp
+pop %rbp
+ret
+
