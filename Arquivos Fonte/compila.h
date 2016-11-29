@@ -6,7 +6,7 @@
 
 
 
-typedef int (*funcp) ();
+typedef int (*funcp) (int x);
 funcp compila (FILE* f);
 void libera (void *p);
 

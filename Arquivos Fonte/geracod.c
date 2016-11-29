@@ -582,7 +582,8 @@ void geracod (FILE *f, void **code, funcp *entry)
     Memory *block = start();
     read_SBF(f, block);
     //debug(block);
-    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc-1]);
+    printf("\n\tblock->source = 0x%lx\n", block->source);
+    printf("\n\tvetEndIniFuncoes[%d] = 0x%lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc-1]);
     *code = block->source;
     *entry = (funcp)vetEndIniFuncoes[qtdFunc-1];
 

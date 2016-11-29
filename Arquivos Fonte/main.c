@@ -20,8 +20,8 @@ int main (void) {
   geracod(myfp, code, &entry);
   printf("\nsaiu da geracod\n");
   //entry = (funcp)code;
-  //printf("\natribuiu code a entry\n");
-  i = (*entry)(0);
+  printf("\n\t*entry: 0x%x\n", entry);
+  i = (*entry)(1);
   printf("\ni = %d\n", i);
   printf("\nacabou\n");
   return 0;
