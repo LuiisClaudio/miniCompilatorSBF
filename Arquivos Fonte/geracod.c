@@ -20,7 +20,7 @@ static int  qtdFunc = 0;
 // Estrutura encapsulada no modulo
 typedef struct _mem Memory;
 
-struct _mem
+static struct _mem
 {
     int index; // proximo indice livre de source
     unsigned char *source;
@@ -52,34 +52,13 @@ static Memory* start()
     return strct;
 }
 
-/*typedef struct _stack Stack;
- struct _stack {
-	int height; //altura da pilha
-	int alocheight; //altura alocada
-	int locals[20]; //altura de cada varíavel local na pilha ( em relação a rbp )
- };*/
-
 static void error (const char *msg, int line)
 {
     fprintf(stderr, "erro %s na linha %d\n", msg, line);
     exit(EXIT_FAILURE);
 }
 
-/** Inicializa uma pilha **/
-/*static Stack* inicializa_pilha()
- {
-	Stack* p = (Stack *) malloc(sizeof(Stack));
-	int i;16:	45 01 e5             	add    %r12d,%r13d
-	for(i = 0; i < 20; i++)
-	{
- p->locals[i] = 0;
-	}
-	p->height = 0;
-	p->alocheight = 0;
-	return p;
- }*/
-
-static void preenche_prologo(unsigned char * inicio)
+static void make_Init(Memory* block)
 {
     /*
      0:	55                   	push   %rbp
@@ -88,7 +67,8 @@ static void preenche_prologo(unsigned char * inicio)
      8:	bb 00 00 00 00       	mov    $0x0,%ebx
      */
     unsigned char in[13];
-    
+    int i;
+
     printf("\n\tEntrei no PREENCHE PROLOGO\n");
     
     in[0] = 0x55;
@@ -105,29 +85,21 @@ static void preenche_prologo(unsigned char * inicio)
     in[11] = 0x00;
     in[12] = 0x00;
     
-    strcpy((char *)inicio, (char *)in);
-    //strcpy((char *)fim, (char *)fi);
-}
-
-
-static void insere(Memory* block, unsigned char* codigo, int size)
-{
-    int i;
-    
     if(block->index < TAMANHO_BYTES)
     {
-        for(i = 0; i < size; i++)
+        qtdFunc++;
+        vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
+
+        for(i = 0; i < 13; i++)
         {
-            block->source[block->index] = codigo[i];
+            block->source[block->index] = in[i];
             block->index++;
             //printf("Index: %d", block->index);
         }
-        qtdFunc++;
-        vetEndIniFuncoes[qtdFunc-1] = &block->source[0];
     }
     else
     {
-        printf("Estouro de block!! at insere()\n");
+        printf("Estouro de block!! at make_Init()\n");
         exit(-1);
     }
     
@@ -493,6 +465,7 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
     block->source[block->index + 2] = 0xfc - (var0*4);
     block->index = block->index + 3;
 }
+
 void make_End(Memory *block)
 {
      /*2a:	48 89 ec             	mov    %rbp,%rsp
@@ -508,6 +481,7 @@ void make_End(Memory *block)
      
      return;
 }
+
 static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
@@ -524,16 +498,8 @@ static void read_SBF(FILE *myfp, Memory *block)
                     error("comando invalido", line);
                 
                 printf("function\n");
-                
-                if (primFunc)
-                {
-                    primFunc = FALSO;
-                }
-                else
-                {
-                    ehPrimLinhaFunc = VERDADEIRO;
-                    qtdFunc++;
-                }
+
+                make_Init(block);
                 break;
             }
             case 'e':   /* end */
@@ -551,13 +517,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                     error("comando invalido", line);
                 
                 printf("ret? %c%d %c%d\n", var0, idx0, var1, idx1);
-                
-                if(ehPrimLinhaFunc)
-                {
-                    vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
-                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc-1, vetEndIniFuncoes[qtdFunc-1]);
-                    ehPrimLinhaFunc = FALSO;
-                }
                                 
                 make_Ret(block, var0, idx0, var1, idx1);
                 break;
@@ -590,13 +549,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                     
                     make_OpVarLocal(block, idx0, var1, idx1, op, var2, idx2);
                 }
-
-                if(ehPrimLinhaFunc)
-                {
-                    vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
-                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc-1, vetEndIniFuncoes[qtdFunc-1]);
-                    ehPrimLinhaFunc = FALSO;
-                }
                 
                 break;
             }
@@ -628,18 +580,11 @@ void geracod (FILE *f, void **code, funcp *entry)
     unsigned char prologo_inicio[13];
     
     Memory *block = start();
-    preenche_prologo(prologo_inicio);
-    insere(block, prologo_inicio, 13);
     read_SBF(f, block);
     //debug(block);
-    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc-1]);
     *code = block->source;
-<<<<<<< HEAD
-    *entry = (funcp)vetEndIniFuncoes[qtdFunc];
-    printf("*entry: 0x%x", *entry);
-=======
     *entry = (funcp)vetEndIniFuncoes[qtdFunc-1];
->>>>>>> c7ce7e869eadd77d55ec60b067768126e3538461
 
     return;
 }
