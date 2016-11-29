@@ -15,7 +15,7 @@
 #define NUM_MAX_FUNCOES 16
 
 static void * vetEndIniFuncoes[NUM_MAX_FUNCOES];
-static int  qtdFunc = -1;
+static int  qtdFunc = 0;
 
 // Estrutura encapsulada no modulo
 typedef struct _mem Memory;
@@ -123,7 +123,7 @@ static void insere(Memory* block, unsigned char* codigo, int size)
             //printf("Index: %d", block->index);
         }
         qtdFunc++;
-        vetEndIniFuncoes[qtdFunc] = &block->source[0];
+        vetEndIniFuncoes[qtdFunc-1] = &block->source[0];
     }
     else
     {
@@ -493,7 +493,21 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
     block->source[block->index + 2] = 0xfc - (var0*4);
     block->index = block->index + 3;
 }
-
+void make_End(Memory *block)
+{
+     /*2a:	48 89 ec             	mov    %rbp,%rsp
+     2d:	5d                   	pop    %rbp
+     2e:	c3                   	retq*/
+     block->source[block->index] = 0x48;
+     block->source[block->index + 1] = 0x89;
+     block->source[block->index + 2] = 0xec;
+     block->source[block->index + 3] = 0x5d;
+     block->source[block->index + 4] = 0xc3;
+     block->index = block->index + 5;
+     
+     
+     return;
+}
 static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
@@ -528,6 +542,7 @@ static void read_SBF(FILE *myfp, Memory *block)
                     error("comando invalido", line);
                 
                 printf("end\n");
+                make_End(block);
                 break;
             }
             case 'r':    /* retorno */
@@ -539,8 +554,8 @@ static void read_SBF(FILE *myfp, Memory *block)
                 
                 if(ehPrimLinhaFunc)
                 {
-                    vetEndIniFuncoes[qtdFunc] = &block->source[block->index];
-                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+                    vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
+                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc-1, vetEndIniFuncoes[qtdFunc-1]);
                     ehPrimLinhaFunc = FALSO;
                 }
                                 
@@ -578,8 +593,8 @@ static void read_SBF(FILE *myfp, Memory *block)
 
                 if(ehPrimLinhaFunc)
                 {
-                    vetEndIniFuncoes[qtdFunc] = &block->source[block->index];
-                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+                    vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
+                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc-1, vetEndIniFuncoes[qtdFunc-1]);
                     ehPrimLinhaFunc = FALSO;
                 }
                 
@@ -619,8 +634,12 @@ void geracod (FILE *f, void **code, funcp *entry)
     //debug(block);
     printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
     *code = block->source;
+<<<<<<< HEAD
     *entry = (funcp)vetEndIniFuncoes[qtdFunc];
     printf("*entry: 0x%x", *entry);
+=======
+    *entry = (funcp)vetEndIniFuncoes[qtdFunc-1];
+>>>>>>> c7ce7e869eadd77d55ec60b067768126e3538461
 
     return;
 }
