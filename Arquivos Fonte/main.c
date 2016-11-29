@@ -4,20 +4,22 @@
 #include "geracod.h"
 #include <math.h>
 
+typedef int (*funcp) (int x);
+
 int main (void) {
   int i;
   void **code;
   FILE *myfp;
-  funcp *entry;
+  funcp entry;
   
 
-  if ((myfp = fopen("/home/lucasferraco/inf1018/miniCompilatorSBF/Arquivos Fonte/Auxiliares/ex3/ex3.txt", "r")) == NULL)
+  if ((myfp = fopen("/home/lucasferraco/inf1018/miniCompilatorSBF/Arquivos Fonte/Auxiliares/ex1/ex1.txt", "r")) == NULL)
   {
     perror ("nao conseguiu abrir arquivo!");
     exit(1);
   }
   //void geracod (FILE *f, void **code, funcp *entry);
-  geracod(myfp, code, entry);
+  geracod(myfp, code, &entry);
   printf("\nsaiu da geracod\n");
   //entry = (funcp)code;
   //printf("\natribuiu code a entry\n");

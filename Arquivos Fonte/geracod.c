@@ -510,7 +510,7 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
 static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
-    int i, c, f, idx0, idx1, idx2;
+    int c, f, idx0, idx1, idx2;
     int line = 1, primFunc = VERDADEIRO, ehPrimLinhaFunc = FALSO;
 
     while ((c = fgetc(myfp)) != EOF)
@@ -633,12 +633,12 @@ void geracod (FILE *f, void **code, funcp *entry)
     printf("\nblock->source: 0x%lx\n", block->source);//apagar
     printf("\n&block->source[0]: 0x%lx\n", &block->source[0]);//apagar
     printf("\nendereco no array[%d]: 0x%lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);//apagar
-    //debug(block);
+    debug(block);
     //printf("\nfim debug\n");//apagar
     *code = block->source;
     printf("\ncode = block->source\n");//apagar
-    //entry = (funcp)vetEndIniFuncoes[qtdFunc];
-    entry = (funcp)&block->source;
+    entry = (funcp *)vetEndIniFuncoes[qtdFunc];
+    //entry = (funcp)block->source;
     printf("\nentry = endereco ultima funcao\n");//apagar
     return;
 }
