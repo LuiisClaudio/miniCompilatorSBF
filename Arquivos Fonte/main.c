@@ -21,7 +21,7 @@ int main (void) {
   printf("\nsaiu da geracod\n");
   //entry = (funcp)code;
   //printf("\natribuiu code a entry\n");
-  i = (*entry)(2);
+  i = (*entry)(1);
   printf("\ni = %d\n", i);
   printf("\nacabou\n");
   return 0;

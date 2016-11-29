@@ -617,8 +617,10 @@ void geracod (FILE *f, void **code, funcp *entry)
     insere(block, prologo_inicio, 13);
     read_SBF(f, block);
     //debug(block);
+    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
     *code = block->source;
     *entry = (funcp)vetEndIniFuncoes[qtdFunc];
+    printf("*entry: 0x%x", *entry);
 
     return;
 }
