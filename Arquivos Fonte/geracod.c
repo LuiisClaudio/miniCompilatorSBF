@@ -493,7 +493,21 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
     block->source[block->index + 2] = 0xfc - (var0*4);
     block->index = block->index + 3;
 }
-
+void make_End(Memory *block)
+{
+     /*2a:	48 89 ec             	mov    %rbp,%rsp
+     2d:	5d                   	pop    %rbp
+     2e:	c3                   	retq*/
+     block->source[block->index] = 0x48;
+     block->source[block->index + 1] = 0x89;
+     block->source[block->index + 2] = 0xec;
+     block->source[block->index + 3] = 0x5d;
+     block->source[block->index + 4] = 0xc3;
+     block->index = block->index + 5;
+     
+     
+     return;
+}
 static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
@@ -528,6 +542,7 @@ static void read_SBF(FILE *myfp, Memory *block)
                     error("comando invalido", line);
                 
                 printf("end\n");
+                make_End(block);
                 break;
             }
             case 'r':    /* retorno */
