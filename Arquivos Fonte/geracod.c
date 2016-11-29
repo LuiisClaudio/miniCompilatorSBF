@@ -15,7 +15,7 @@
 #define NUM_MAX_FUNCOES 16
 
 static void * vetEndIniFuncoes[NUM_MAX_FUNCOES];
-static int  qtdFunc = -1;
+static int  qtdFunc = 0;
 
 // Estrutura encapsulada no modulo
 typedef struct _mem Memory;
@@ -123,7 +123,7 @@ static void insere(Memory* block, unsigned char* codigo, int size)
             //printf("Index: %d", block->index);
         }
         qtdFunc++;
-        vetEndIniFuncoes[qtdFunc] = &block->source[0];
+        vetEndIniFuncoes[qtdFunc-1] = &block->source[0];
     }
     else
     {
@@ -539,8 +539,8 @@ static void read_SBF(FILE *myfp, Memory *block)
                 
                 if(ehPrimLinhaFunc)
                 {
-                    vetEndIniFuncoes[qtdFunc] = &block->source[block->index];
-                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+                    vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
+                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc-1, vetEndIniFuncoes[qtdFunc-1]);
                     ehPrimLinhaFunc = FALSO;
                 }
                                 
@@ -578,8 +578,8 @@ static void read_SBF(FILE *myfp, Memory *block)
 
                 if(ehPrimLinhaFunc)
                 {
-                    vetEndIniFuncoes[qtdFunc] = &block->source[block->index];
-                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
+                    vetEndIniFuncoes[qtdFunc-1] = &block->source[block->index];
+                    printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc-1, vetEndIniFuncoes[qtdFunc-1]);
                     ehPrimLinhaFunc = FALSO;
                 }
                 
@@ -618,7 +618,7 @@ void geracod (FILE *f, void **code, funcp *entry)
     read_SBF(f, block);
     //debug(block);
     *code = block->source;
-    *entry = (funcp)vetEndIniFuncoes[qtdFunc];
+    *entry = (funcp)vetEndIniFuncoes[qtdFunc-1];
 
     return;
 }
