@@ -223,26 +223,19 @@ static void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1
     }
     
     //faz o teste e retorna
+    
     /*
-     df:	83 fb 00             	cmp    $0x0,%ebx
-     e2:	74 00                	je     e4 <FIM>
-     2a:	b8 00 00 00 00       	mov    $0x0,%eax
+     25:	83 fb 00             	cmp    $0x0,%ebx
+     28:	75 05                	jne    2f <FIM>
+     2a:	48 89 ec             	mov    %rbp,%rsp
+     2d:	5d                   	pop    %rbp
+     2e:	c3                   	retq
      */
     block->source[block->index] = 0x83;
     block->source[block->index + 1] = 0xfb;
     block->source[block->index + 2] = 0x00;
     block->source[block->index + 3] = 0x75;
-    block->source[block->index + 4] = 0x05; // porque é 0x05 e não 0x00 ?
-    
-    /*
-  1d:	bb 00 00 00 00       	mov    $0x0,%ebx
-  22:	8b 45 fc             	mov    -0x4(%rbp),%eax
-  25:	83 fb 00             	cmp    $0x0,%ebx
-  28:	75 05                	jne    2f <FIM>
-  2a:	48 89 ec             	mov    %rbp,%rsp
-  2d:	5d                   	pop    %rbp
-  2e:	c3                   	retq                    	retq
-     */
+    block->source[block->index + 4] = 0x05;
     block->source[block->index + 5] = 0x48;
     block->source[block->index + 6] = 0x89;
     block->source[block->index + 7] = 0xec;
@@ -370,10 +363,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
     switch(op)
     {
             /*
-             54:	45 01 e5             	add    %r12d,%r13d
-             57:	45 29 e5             	sub    %r12d,%r13d
-             5a:	45 0f af ec          	imul   %r12d,%r13d
-             
              9c:	45 01 ec             	add    %r13d,%r12d
              9f:	45 29 ec             	sub    %r13d,%r12d
              a2:	45 0f af e5          	imul   %r13d,%r12d
@@ -415,8 +404,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
      18:	44 89 65 f4          	mov    %r12d,-0xc(%rbp)
      1c:	44 89 65 f0          	mov    %r12d,-0x10(%rbp)
      20:	44 89 65 ec          	mov    %r12d,-0x14(%rbp)
-     
-     bd:	44 89 6d fc          	mov    %r13d,-0x4(%rbp)
      */
     
     printf("\nEntrei no MAKE OP VAR LOCAL: 	ATRIBUI A OPERAÇÃO PARA A VARIAVEL LOCAL\n");
@@ -465,8 +452,8 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
         case '$':
         {
             /*
-             ab:	bf cc 06 06 00       	mov    $0x606cc,%ebx
-             b0:	bf 15 25 00 00       	mov    $0x2515,%ebx
+             77:	bf cc 06 06 00       	mov    $0x606cc,%edi
+             7c:	bf 15 25 00 00       	mov    $0x2515,%edi
              */
             block->source[block->index] = 0xbf;
             block->source[block->index + 1] = (char)varpc0;
@@ -483,7 +470,7 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
      62:	e8 00 00 00 00       	callq  67 <f1+0x35>
      6d:	e8 00 00 00 00       	callq  72 <f1+0x40>
     */
-    enderecoFimCall = (long)&(block->source[block->index + 5]);
+    enderecoFimCall = (long)&block->source[block->index + 5];
     difEntreEndFuncoes = enderecoFimCall - (long)enderecoFuncaoChamada;
     printf("\nenderecoFuncaoChamada = 0x%lx", enderecoFuncaoChamada);
     printf("\nenderecoFimCall = 0x%lx", enderecoFimCall);
@@ -629,17 +616,10 @@ void geracod (FILE *f, void **code, funcp *entry)
     preenche_prologo(prologo_inicio);
     insere(block, prologo_inicio, 13);
     read_SBF(f, block);
-    printf("\n&block->source: 0x%lx\n", &block->source);//apagar
-    printf("\nblock->source: 0x%lx\n", block->source);//apagar
-    printf("\n&block->source[0]: 0x%lx\n", &block->source[0]);//apagar
-    printf("\nendereco no array[%d]: 0x%lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);//apagar
-    debug(block);
-    //printf("\nfim debug\n");//apagar
+    //debug(block);
     *code = block->source;
-    printf("\ncode = block->source\n");//apagar
-    entry = (funcp *)vetEndIniFuncoes[qtdFunc];
-    //entry = (funcp)block->source;
-    printf("\nentry = endereco ultima funcao\n");//apagar
+    *entry = (funcp)vetEndIniFuncoes[qtdFunc];
+
     return;
 }
 
