@@ -14,7 +14,7 @@
  */
 #define NUM_MAX_FUNCOES 16
 
-static long vetEndIniFuncoes[NUM_MAX_FUNCOES];
+static void * vetEndIniFuncoes[NUM_MAX_FUNCOES];
 static int  qtdFunc = -1;
 
 // Estrutura encapsulada no modulo
@@ -45,6 +45,9 @@ static Memory* start()
     {
         strct->source[i] = 0x90; //NOP
     }
+
+    for(i=0; i<NUM_MAX_FUNCOES; i++)
+        vetEndIniFuncoes[i] = NULL;
     
     return strct;
 }
@@ -119,7 +122,8 @@ static void insere(Memory* block, unsigned char* codigo, int size)
             block->index++;
             //printf("Index: %d", block->index);
         }
-        
+        qtdFunc++;
+        vetEndIniFuncoes[qtdFunc] = &block->source[0];
     }
     else
     {
@@ -425,7 +429,7 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
     
 }
 
-static void make_Call(Memory* block, int var0, long enderecoFuncaoChamada, char tipoVarpc0, int varpc0)
+static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, char tipoVarpc0, int varpc0)
 {
     long difEntreEndFuncoes, enderecoFimCall;
 
@@ -479,8 +483,8 @@ static void make_Call(Memory* block, int var0, long enderecoFuncaoChamada, char 
      62:	e8 00 00 00 00       	callq  67 <f1+0x35>
      6d:	e8 00 00 00 00       	callq  72 <f1+0x40>
     */
-    enderecoFimCall = (long)&(block->source[block->index + 4]);
-    difEntreEndFuncoes = enderecoFimCall - enderecoFuncaoChamada;
+    enderecoFimCall = (long)&(block->source[block->index + 5]);
+    difEntreEndFuncoes = enderecoFimCall - (long)enderecoFuncaoChamada;
     printf("\nenderecoFuncaoChamada = 0x%lx", enderecoFuncaoChamada);
     printf("\nenderecoFimCall = 0x%lx", enderecoFimCall);
     printf("\ndifEntreEndFuncoes = 0x%lx\n\n", difEntreEndFuncoes);
@@ -507,10 +511,7 @@ static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
     int i, c, f, idx0, idx1, idx2;
-    int line = 1, ehPrimLinhaFunc = FALSO;
-
-    for(i=0; i<NUM_MAX_FUNCOES; i++)
-        vetEndIniFuncoes[i] = 0;
+    int line = 1, primFunc = VERDADEIRO, ehPrimLinhaFunc = FALSO;
 
     while ((c = fgetc(myfp)) != EOF)
     {
@@ -523,8 +524,15 @@ static void read_SBF(FILE *myfp, Memory *block)
                 
                 printf("function\n");
                 
-                ehPrimLinhaFunc = VERDADEIRO;
-                qtdFunc++;
+                if (primFunc)
+                {
+                    primFunc = FALSO;
+                }
+                else
+                {
+                    ehPrimLinhaFunc = VERDADEIRO;
+                    qtdFunc++;
+                }
                 break;
             }
             case 'e':   /* end */
@@ -544,7 +552,7 @@ static void read_SBF(FILE *myfp, Memory *block)
                 
                 if(ehPrimLinhaFunc)
                 {
-                    vetEndIniFuncoes[qtdFunc] = (long)&block->source[block->index];
+                    vetEndIniFuncoes[qtdFunc] = &block->source[block->index];
                     printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
                     ehPrimLinhaFunc = FALSO;
                 }
@@ -583,7 +591,7 @@ static void read_SBF(FILE *myfp, Memory *block)
 
                 if(ehPrimLinhaFunc)
                 {
-                    vetEndIniFuncoes[qtdFunc] = (long)&(block->source[block->index]);
+                    vetEndIniFuncoes[qtdFunc] = &block->source[block->index];
                     printf("vetEndIniFuncoes[%d] = %lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);
                     ehPrimLinhaFunc = FALSO;
                 }
@@ -605,7 +613,7 @@ static void debug(Memory* block)
     
     for(i = 0; i < block->index; i++)
     {
-        printf("%d : %x\n", i, block->source[i]);
+        printf("%x : %x\n", i, block->source[i]);
     }
 }
 
@@ -616,19 +624,21 @@ static void debug(Memory* block)
 void geracod (FILE *f, void **code, funcp *entry)
 {
     unsigned char prologo_inicio[13];
-    int i; //apagar
+    
     Memory *block = start();
     preenche_prologo(prologo_inicio);
     insere(block, prologo_inicio, 13);
     read_SBF(f, block);
-    printf("\nendereco primeira linha: 0x%lx\n", &block->source[0]);//apagar
-    printf("\nendereco linha pos call: 0x%lx\n", &block->source[70]);//apagar
+    printf("\n&block->source: 0x%lx\n", &block->source);//apagar
+    printf("\nblock->source: 0x%lx\n", block->source);//apagar
+    printf("\n&block->source[0]: 0x%lx\n", &block->source[0]);//apagar
     printf("\nendereco no array[%d]: 0x%lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc]);//apagar
     //debug(block);
-    printf("\nfim debug\n");//apagar
+    //printf("\nfim debug\n");//apagar
     *code = block->source;
     printf("\ncode = block->source\n");//apagar
-    entry = (funcp)vetEndIniFuncoes[qtdFunc];
+    //entry = (funcp)vetEndIniFuncoes[qtdFunc];
+    entry = (funcp)&block->source;
     printf("\nentry = endereco ultima funcao\n");//apagar
     return;
 }
