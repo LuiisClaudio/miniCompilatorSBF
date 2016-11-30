@@ -22,7 +22,7 @@ static int  qtdFunc = 0;
  */
 typedef struct _mem Memory;
 
-static struct _mem
+struct _mem
 {
     int index; // proximo indice livre de source
     unsigned char * source;
@@ -464,7 +464,7 @@ static void read_SBF(FILE *myfp, Memory *block)
 {
     char c0, op, var0, var1, var2;
     int c, f, idx0, idx1, idx2;
-    int line = 1, primFunc = VERDADEIRO, ehPrimLinhaFunc = FALSO;
+    int line = 1;
 
     while ((c = fgetc(myfp)) != EOF)
     {
@@ -548,14 +548,17 @@ static void debug(Memory* block)
  FUNCOES EXTERNADAS PELO MODULO
  */
 void geracod (FILE *f, void **code, funcp *entry)
-{
-    unsigned char prologo_inicio[13];
-    
+{   
     Memory *block = start();
     read_SBF(f, block);
+
+    /*
+     Caso deseje verifivar o codigo de maquina gerado pelo modulo,
+      descomente a linha de codigo abaixo para imprimir o codigo
+      de maquina correspondente ao do arquivo de entrada.
+     */
     //debug(block);
-    printf("\n\tblock->source = 0x%lx\n", block->source);
-    printf("\n\tvetEndIniFuncoes[%d] = 0x%lx\n", qtdFunc, vetEndIniFuncoes[qtdFunc-1]);
+
     *code = block->source;
     *entry = (funcp)vetEndIniFuncoes[qtdFunc-1];
 
@@ -564,8 +567,8 @@ void geracod (FILE *f, void **code, funcp *entry)
 
 void liberacod(void* p)
 {
-    unsigned char* freeme = (unsigned char*) p;
-    free(freeme);
+    unsigned char* codigo = (unsigned char*) p;
+    free(codigo);
 }
 
 /*

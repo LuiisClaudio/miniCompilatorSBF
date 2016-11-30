@@ -4,6 +4,8 @@
 #include "geracod.h"
 #include <math.h>
 
+void testeCode(void *code);
+
 int main (void) {
   int i;
   void **code;
@@ -18,11 +20,24 @@ int main (void) {
   }
   //void geracod (FILE *f, void **code, funcp *entry);
   geracod(myfp, code, &entry);
-  printf("\nsaiu da geracod\n");
-  //entry = (funcp)code;
-  printf("\n\t*entry: 0x%x\n", entry);
-  i = (*entry)(2);
+  printf("\ncode = %x\n", ((unsigned char *)*code)[0]);
+  printf("\ncode = %x\n", ((unsigned char *)*code)[1]);
+  printf("\ncode = %x\n", ((unsigned char *)*code)[2]);
+  testeCode(code);
+  i = (*entry)(3);
   printf("\ni = %d\n", i);
-  printf("\nacabou\n");
+
+  liberacod(*code);
+  printf("\ncode = %x\n", ((unsigned char *)*code)[0]);
+  printf("\ncode = %x\n", ((unsigned char *)*code)[1]);
+  printf("\ncode = %x\n", ((unsigned char *)*code)[2]);
+  testeCode(*code);
   return 0;
+}
+
+void testeCode (void *code) {
+	if(code == NULL)
+		printf("CODE VAZIO");
+	else
+		printf("CODE NAO VAZIO");
 }
