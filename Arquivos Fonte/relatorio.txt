@@ -9,6 +9,8 @@ Luís Claudio C. Martins
 
 -O passo seguinte natural foi fazer funcionar o exemplo 4. O quarto teste não exigiu uma modificação brusca no código, porque boa parte já foi aproveitada dos casos anteriores. Portanto o exemplo 4 rodou normalmente.
 
+-Logo que a funcao geracod estava completa, testamos a liberacod e ela funcionou da maneira prevista.
+
 -Assim o trabalho estava aparentemente pronto, testasmos algumas funções que nosso grupo fez como:
 (Obs: Todas as funções funcionaram perfeitamente)
 
