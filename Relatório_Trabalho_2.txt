@@ -1,0 +1,72 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1504\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;\csgray\c100000;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 Lucas Ferra\'e7o de Freitas, matr\'edcula 1513012\
+Lu\'eds Claudio C. Martins, matr\'edcula 1512946\
+\
+-O trabalho come\'e7ou testando o primeiro exemplo do site que s\'f3 retorna uma constante. O programa rodou perfeitamente. \
+\
+-Depois implementamos o segundo exemplo, o caso das atribui\'e7\'f5es, e felizmente rodou perfeitamente\
+\
+-Pr\'f3ximo passo foi testar o call presente no exemplo 3, referente a uma fun\'e7\'e3o recursiva. O call funcionou como esperado.\
+\
+-O passo seguinte natural foi fazer funcionar o exemplo 4. O quarto teste n\'e3o exigiu uma modifica\'e7\'e3o brusca no c\'f3digo, porque boa parte j\'e1 foi aproveitada dos casos anteriores. Portanto o exemplo 4 rodou normalmente.\
+\
+-Logo que a funcao geracod estava completa, testamos a liberacod e ela funcionou da maneira prevista.\
+\
+-Assim o trabalho estava aparentemente pronto, testasmos algumas fun\'e7\'f5es que nosso grupo fez como:\
+(Obs: Todas as fun\'e7\'f5es funcionaram perfeitamente)\
+\
+Somat\'f3ria de n ate 0\
+function\
+ret? p0 $1\
+v0 = p0 + $0\
+v1 = v0 - $1 \
+v1 = call 0 v1\
+v0 = v0 + v1\
+ret? $0 v0\
+end\
+\
+Acha o 2^n\
+function \
+ret? p0 $1\
+v0 = $2 + $0\
+v1 = $2 + $0\
+v2 = p0 - $1\
+v1 = call 0 v2\
+v0 = v0 * v1\
+ret? $0 v0\
+end\
+\
+Soma dos quadrados * 8\
+function\
+v0 = p0 * p0\
+ret? $0 v0\
+end\
+function\
+ret? p0 $0\
+v0 = p0 - $1\
+v1 = call 0 p0\
+v0 = call 1 v0\
+v0 = v0 + v1\
+ret? $0 v0\
+end\
+function\
+v2 = call 1 p0\
+v2 = v2 * $2\
+ret? $0 v2\
+end  \
+function\
+v2 = call 2 p0\
+v2 = v2 * $2\
+ret? $0 v2\
+end\
+function\
+v2 = call 3 p0\
+v2 = v2 * $2\
+ret? $0 v2\
+end}
