@@ -11,7 +11,7 @@ int main (void) {
   funcp entry;
   
 
-  if ((myfp = fopen("/home/lucasferraco/inf1018/miniCompilatorSBF/Arquivos Fonte/Auxiliares/ex3/ex3.txt", "r")) == NULL)
+  if ((myfp = fopen("/home/lucasferraco/inf1018/miniCompilatorSBF/Arquivos Fonte/Auxiliares/ex4/ex4.txt", "r")) == NULL)
   {
     perror ("nao conseguiu abrir arquivo!");
     exit(1);
@@ -21,7 +21,7 @@ int main (void) {
   printf("\nsaiu da geracod\n");
   //entry = (funcp)code;
   printf("\n\t*entry: 0x%x\n", entry);
-  i = (*entry)(1);
+  i = (*entry)(2);
   printf("\ni = %d\n", i);
   printf("\nacabou\n");
   return 0;

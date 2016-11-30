@@ -443,7 +443,7 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
      6d:	e8 00 00 00 00       	callq  72 <f1+0x40>
     */
     enderecoFimCall = (long)&block->source[block->index + 5];
-    difEntreEndFuncoes = enderecoFimCall - (long)enderecoFuncaoChamada;
+    difEntreEndFuncoes = (long)enderecoFuncaoChamada - enderecoFimCall;
     printf("\nenderecoFuncaoChamada = 0x%lx", enderecoFuncaoChamada);
     printf("\nenderecoFimCall = 0x%lx", enderecoFimCall);
     printf("\ndifEntreEndFuncoes = 0x%lx\n\n", difEntreEndFuncoes);
