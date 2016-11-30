@@ -1,3 +1,10 @@
+/*
+ 
+ Lucas Ferraço de Freitas   Matrícula 1513012   Turma 3WA
+ Luís Claudio C. Martins    Matrícula 1512946   Turma 3WA
+ 
+ */
+
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
