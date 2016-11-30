@@ -17,16 +17,24 @@
 static void * vetEndIniFuncoes[NUM_MAX_FUNCOES];
 static int  qtdFunc = 0;
 
-// Estrutura encapsulada no modulo
+/*
+ ESTRUTURA ENCAPSULADA NO MODULO
+ */
 typedef struct _mem Memory;
 
 static struct _mem
 {
     int index; // proximo indice livre de source
-    unsigned char *source;
+    unsigned char * source;
 };
+/*
+ FIM DA ESTRUTURA ENCAPSULADA NO MODULO
+ */
 
-// Funcoes encapsuladas no modulo
+
+/*
+ FUNCOES ENCAPSULADAS NO MODULO
+ */
 static Memory* start()
 {
     int i;
@@ -68,8 +76,6 @@ static void make_Init(Memory* block)
      */
     unsigned char in[13];
     int i;
-
-    printf("\n\tEntrei no PREENCHE PROLOGO\n");
     
     in[0] = 0x55;
     in[1] = 0x48;
@@ -94,7 +100,6 @@ static void make_Init(Memory* block)
         {
             block->source[block->index] = in[i];
             block->index++;
-            //printf("Index: %d", block->index);
         }
     }
     else
@@ -107,8 +112,6 @@ static void make_Init(Memory* block)
 
 static void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1, int varpc1)
 {
-    printf("\n\tEntrei no MAKE RET\n");
-    
     //movl teste, %ebx
     switch(tipoVarpc0)
     {
@@ -217,10 +220,8 @@ static void make_Ret(Memory* block, char tipoVarpc0, int varpc0, char tipoVarpc1
     block->index = block->index + 10;
 }
 
-
 static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varpc1, char op, char tipoVarpc2, int varpc2)
 {
-    printf("\nEntrei no MAKE OP VAR LOCAL\n");
     //reg = const + const
     //reg = const + p
     //reg = const + reg
@@ -229,8 +230,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
     {
         case 'v':
         {
-            printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var1: Case v%d\n", varpc1);
-            
             /*
              1f:	44 8b 65 fc          	mov    -0x4(%rbp),%r12d
              23:	44 8b 65 f8          	mov    -0x8(%rbp),%r12d
@@ -247,8 +246,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
         }
         case 'p':
         {
-            printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var1: Case p0\n");
-            
             /* 
              75:	41 89 fc             	mov    %edi,%r12d
              */
@@ -260,8 +257,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
         }
         case '$':
         {
-            printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var1: Case $\n");
-            
             /*
              d:	    41 bc 01 00 00 00    	mov    $0x1,%r12d
              13:	41 bc 02 00 00 00    	mov    $0x2,%r12d
@@ -284,8 +279,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
     {
         case 'v':
         {
-            printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var2: Case v%d\n", varpc2);
-            
             /*
              48:	44 8b 6d fc          	mov    -0x4(%rbp),%r13d
              4c:	44 8b 6d f8          	mov    -0x8(%rbp),%r13d
@@ -300,8 +293,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
         }
         case 'p':
         {
-            printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var2: Case p0\n");
-            
             /*
              33:	41 89 fd             	mov    %edi,%r13d
              */
@@ -313,8 +304,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
         }
         case '$':
         {
-            printf("\n\t\tEntrei no MAKE OP VAR LOCAL: Var2: Case $%d\n", varpc2);
-            
             /*
              36:	41 bd 01 00 00 00    	mov    $0x1,%r13d
              3c:	41 bd 02 00 00 00    	mov    $0x2,%r13d
@@ -345,8 +334,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
             block->source[block->index + 1] = 0x01;
             block->source[block->index + 2] = 0xec;
             block->index = block->index + 3;
-            printf("\n\t\t OPERACAO de ++++\n");
-            
             break;
         }
         case '-':
@@ -355,7 +342,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
             block->source[block->index + 1] = 0x29;
             block->source[block->index + 2] = 0xec;
             block->index = block->index + 3;
-            printf("\n\t\t OPERACAO de ----\n");
             break;
         }
         case '*':
@@ -365,7 +351,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
             block->source[block->index + 2] = 0xaf;
             block->source[block->index + 3] = 0xe5;
             block->index = block->index + 4;
-            printf("\n\t\t OPERACAO de ****\n");
             break;
         }
     }
@@ -378,8 +363,6 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
      20:	44 89 65 ec          	mov    %r12d,-0x14(%rbp)
      */
     
-    printf("\nEntrei no MAKE OP VAR LOCAL: 	ATRIBUI A OPERAÇÃO PARA A VARIAVEL LOCAL\n");
-    
     block->source[block->index] = 0x44;
     block->source[block->index + 1] = 0x89;
     block->source[block->index + 2] = 0x65;
@@ -388,14 +371,12 @@ static void make_OpVarLocal(Memory *block, int varpc0, char tipoVarpc1, int varp
     
 }
 
-static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, char tipoVarpc0, int varpc0)
+static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, char tipoVarpc1, int varpc1)
 {
     long difEntreEndFuncoes, enderecoFimCall;
-
-    printf("\n\tEntrei no MAKE CALL\n");
     
     //movl parametro, %edi
-    switch(tipoVarpc0)
+    switch(tipoVarpc1)
     {
         case 'v':
         {
@@ -406,7 +387,7 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
              */
             block->source[block->index] = 0x8b;
             block->source[block->index + 1] = 0x7d;
-            block->source[block->index + 2] = 0xfc - (varpc0*4);
+            block->source[block->index + 2] = 0xfc - (varpc1*4);
             block->index = block->index + 3;
             break;
             
@@ -428,10 +409,10 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
              7c:	bf 15 25 00 00       	mov    $0x2515,%edi
              */
             block->source[block->index] = 0xbf;
-            block->source[block->index + 1] = (char)varpc0;
-            block->source[block->index + 2] = (char)varpc0 >> 8;
-            block->source[block->index + 3] = (char)varpc0 >> 16;
-            block->source[block->index + 4] = (char)varpc0 >> 24;
+            block->source[block->index + 1] = (char)varpc1;
+            block->source[block->index + 2] = (char)varpc1 >> 8;
+            block->source[block->index + 3] = (char)varpc1 >> 16;
+            block->source[block->index + 4] = (char)varpc1 >> 24;
             block->index = block->index + 5;
             break;
         }
@@ -444,9 +425,7 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
     */
     enderecoFimCall = (long)&block->source[block->index + 5];
     difEntreEndFuncoes = (long)enderecoFuncaoChamada - enderecoFimCall;
-    printf("\nenderecoFuncaoChamada = 0x%lx", enderecoFuncaoChamada);
-    printf("\nenderecoFimCall = 0x%lx", enderecoFimCall);
-    printf("\ndifEntreEndFuncoes = 0x%lx\n\n", difEntreEndFuncoes);
+    
     block->source[block->index] = 0xe8;
     block->source[block->index + 1] = (difEntreEndFuncoes & 0xff);
     block->source[block->index + 2] = (difEntreEndFuncoes & 0xff00) >> 8;
@@ -466,20 +445,19 @@ static void make_Call(Memory* block, int var0, void * enderecoFuncaoChamada, cha
     block->index = block->index + 3;
 }
 
-void make_End(Memory *block)
+static void make_End(Memory *block)
 {
-     /*2a:	48 89 ec             	mov    %rbp,%rsp
-     2d:	5d                   	pop    %rbp
-     2e:	c3                   	retq*/
+     /*
+      2a:	48 89 ec             	mov    %rbp,%rsp
+      2d:	5d                   	pop    %rbp
+      2e:	c3                   	retq
+      */
      block->source[block->index] = 0x48;
      block->source[block->index + 1] = 0x89;
      block->source[block->index + 2] = 0xec;
      block->source[block->index + 3] = 0x5d;
      block->source[block->index + 4] = 0xc3;
      block->index = block->index + 5;
-     
-     
-     return;
 }
 
 static void read_SBF(FILE *myfp, Memory *block)
@@ -497,8 +475,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                 if (fscanf(myfp, "unction%c", &c0) != 1)
                     error("comando invalido", line);
                 
-                printf("function\n");
-
                 make_Init(block);
                 break;
             }
@@ -507,7 +483,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                 if (fscanf(myfp, "nd%c", &c0) != 1)
                     error("comando invalido", line);
                 
-                printf("end\n");
                 make_End(block);
                 break;
             }
@@ -516,8 +491,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                 if (fscanf(myfp, "et? %c%d %c%d", &var0, &idx0, &var1, &idx1) != 4)
                     error("comando invalido", line);
                 
-                printf("ret? %c%d %c%d\n", var0, idx0, var1, idx1);
-                                
                 make_Ret(block, var0, idx0, var1, idx1);
                 break;
             }
@@ -533,8 +506,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                     if (fscanf(myfp, "all %d %c%d\n", &f, &var1, &idx1) != 3)
                         error("comando invalido",line);
                     
-                    printf("%c%d = call %d %c%d\n",var0, idx0, f, var1, idx1);
-                    
                     make_Call(block, idx0, vetEndIniFuncoes[f], var1, idx1);
                 } 
                 else    /* operação aritmética */
@@ -543,9 +514,6 @@ static void read_SBF(FILE *myfp, Memory *block)
                     
                     if (fscanf(myfp, "%d %c %c%d", &idx1, &op, &var2, &idx2) != 4)
                         error("comando invalido", line);
-                    
-                    printf("%c%d = %c%d %c %c%d\n",
-                           var0, idx0, var1, idx1, op, var2, idx2);
                     
                     make_OpVarLocal(block, idx0, var1, idx1, op, var2, idx2);
                 }
@@ -571,10 +539,14 @@ static void debug(Memory* block)
     }
 }
 
-// Fim das funcoes encapsuladas no modulo
+/*
+ FIM DAS FUNCOES ENCAPSULADAS NO MODULO
+ */
 
-// Funcoes externadas pelo modulo
 
+/*
+ FUNCOES EXTERNADAS PELO MODULO
+ */
 void geracod (FILE *f, void **code, funcp *entry)
 {
     unsigned char prologo_inicio[13];
@@ -596,4 +568,6 @@ void liberacod(void* p)
     free(freeme);
 }
 
-// Fim das funcoes externadas pelo modulo
+/*
+ FIM DAS FUNCOES EXTERNADAS PELO MODULO
+ */
