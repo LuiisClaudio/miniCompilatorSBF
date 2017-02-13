@@ -6,6 +6,6 @@ lecionada em 2016.2 na Pontifícia Universidade Católica do Rio de Janeiro - PU
 
 ## Integrantes do Grupo:
 
-Lucas Ferraço
+[Lucas Ferraço](https://github.com/lucasferraco)
 
-Luis Cláudio Catanhêde
+[Luis Cláudio Catanhêde](https://github.com/LuiisClaudio)
